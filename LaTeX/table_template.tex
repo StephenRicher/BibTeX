@@ -1,0 +1,67 @@
+\documentclass{article}
+\usepackage{csvsimple,booktabs,array,siunitx,tabu}
+\usepackage{filecontents}
+
+% Enable siunitx S-columns to be used with tabu X column.
+\ExplSyntaxOn
+\cs_new_eq:NN \siunitx_table_collect_begin:Nn \__siunitx_table_collect_begin:Nn
+\ExplSyntaxOff
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+
+\sisetup{
+    group-four-digits=true,
+    group-separator={,},
+    round-precision=2,
+    round-mode=places
+}
+
+\begin{filecontents*}{grades.csv}
+height,name,mat,gender,grade
+654e3,Maier,12345,m,2.6e3
+99.6,Huber,23456,f,4.234e2
+754.0,Weisbaeck,34567,m,7.5e7
+\end{filecontents*}
+
+\begin{document}
+
+
+% Usage
+% 	CSVSimple does not accept S columns as first column.
+% 	If column 1 needs SIunitx alignment then use the \tablenum macro.
+
+\begin{table*}[htbp] 
+\centering
+\ra{1.1}
+\begin{tabu} to \linewidth {@{}
+    X[c]
+    X[c]
+    X[c]{S[table-format=5]}
+    X[c]
+    X[c]{S[table-format=1.2e1]}
+    @{}}
+    \toprule
+    & \multicolumn{2}{c}{\textbf{HB2 WT}} & \multicolumn{2}{c}{\textbf{MCF7}} \\
+    \cmidrule{2-3} \cmidrule{4-5}
+    & {1} & {2} & {1} & {2} \\
+    \midrule
+    \csvreader[late after line=\\]{grades.csv}{}
+        {\tablenum[table-format=3.2e1]{\csvcoli} & 
+        \csvcolii & \csvcoliii & 
+        \csvcoliv & \csvcolv}
+    \bottomrule
+\end{tabu}
+\end{table*}
+
+\begin{table*}[htbp] 
+\centering
+\begin{tabu} to \linewidth {@{}XXXXX@{}}
+    \toprule
+    height & name & mat & gender & grade \\
+    \midrule
+    \csvreader[late after line=\\]{grades.csv}{}
+        {\csvcoli & \csvcolii & \csvcoliii & \csvcoliv & \csvcolv}
+    \bottomrule
+\end{tabu}
+\end{table*}
+
+\end{document}
